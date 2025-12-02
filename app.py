@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, url_for
+from flask import Flask, redirect, request, url_for, render_template
 import stripe
 import os
 import logging
@@ -22,6 +22,11 @@ logging.info("Startup: Stripe key present=%s", bool(stripe.api_key))
 @app.route('/')
 def index():
     return "Invoice Bridge API OK"
+
+@app.route('/invoice')
+def invoice_template():
+    """Serve the invoice template with the payment URL pre-configured"""
+    return render_template('invoice.html')
 
 @app.route('/health')
 def health():
