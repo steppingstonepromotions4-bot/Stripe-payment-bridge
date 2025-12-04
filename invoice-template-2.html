@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Client Invoice - Template</title>
+    <style>
+        /* --- Corporate Color Palette --- */
+        :root {
+            --color-cream: #F5F5DC;    /* Background/Paper */
+            --color-charcoal: #36454F; /* Primary Text/Gravitas */
+            --color-taupe: #B7A99A;    /* Subtle Dividers */
+            --color-gold: #CBA135;     /* Metallic Accent/Value */
+        }
+
+        /* Page layout */
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: var(--color-cream);
+            color: var(--color-charcoal);
+            margin: 0;
+            padding: 30px;
+        }
+
+        .invoice-container {
+            width: 8.5in; /* letter width */
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #FFFFFF;
+            box-shadow: 0 0 10px rgba(0,0,0,0.08);
+            box-sizing: border-box;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .sender-info {
+            line-height: 1.4;
+            text-align: right;
+            font-size: 10pt;
+        }
+
+        .sender-info h1 {
+            font-size: 16pt;
+            margin: 0 0 5px 0;
+            letter-spacing: 1px;
+            color: var(--color-charcoal);
+        }
+
+        .logo-block {
+            display:flex;
+            gap:10px;
+            align-items:center;
+        }
+
+        .logo-preview {
+            width: 140px;
+            height: 80px;
+            object-fit: contain;
+            background: transparent;
+        }
+
+        .logo-placeholder {
+            font-weight: bold;
+            font-size: 10pt;
+            color: var(--color-gold);
+            text-transform: uppercase;
+        }
+
+        .recipient-details {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--color-taupe);
+            border-bottom: 1px solid var(--color-taupe);
+            padding: 12px 0;
+            margin-bottom: 18px;
+            gap:12px;
+        }
+
+        .billing-info, .invoice-details {
+            width: 48%;
+            line-height: 1.6;
+            font-size: 10pt;
+        }
+
+        .billing-info strong, .invoice-details strong {
+            display:block;
+            font-size: 11pt;
+            margin-bottom:6px;
+        }
+
+        /* Items table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+            margin-bottom: 18px;
+        }
+
+        .items-table th, .items-table td {
+            border-bottom: 1px solid var(--color-taupe);
+            padding: 10px 8px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .items-table th {
+            font-weight:bold;
+            text-transform: uppercase;
+            background-color: rgba(183,169,154,0.04);
+            font-size: 9pt;
+        }
+
+        .items-table .amount { text-align: right; }
+
+        .items-table input[type="number"], .items-table input[type="text"] {
+            width:100%;
+            box-sizing:border-box;
+            border: none;
+            background: transparent;
+            font: inherit;
+        }
+
+        .items-actions { margin-bottom: 12px; }
+
+        .summary-footer {
+            display:flex;
+            justify-content:space-between;
+            gap:12px;
+        }
+
+        .notes-terms { width:60%; font-size:9pt; line-height:1.4; }
+
+        /* Payment link input validation states */
+        #paymentLinkInput {
+            transition: border-color 160ms ease-in-out, box-shadow 160ms ease-in-out;
+            border: 1px solid var(--color-taupe);
+            box-shadow: none;
+        }
+        #paymentLinkInput.valid {
+            border-color: #2e8b57; /* sea-green */
+            box-shadow: 0 0 6px rgba(46,139,87,0.12);
+        }
+        #paymentLinkInput.invalid {
+            border-color: #d9534f; /* bootstrap danger red */
+            box-shadow: 0 0 6px rgba(217,83,79,0.12);
+        }
+
+        .totals-box { width:35%; text-align:right; }
+
+        .totals-box table { width:100%; border-collapse: collapse; font-size:10pt; }
+
+        .totals-box td { padding:6px 0; }
+
+        .totals-box .final-total td { font-size:14pt; font-weight:bold; padding-top:10px; border-top:2px solid var(--color-charcoal); }
+
+        .totals-box .final-total .value { color: var(--color-gold); }
+
+        .thank-you { margin-top:18px; font-style:italic; font-size:9pt; }
+
+        /* Controls */
+        .controls { margin-top: 12px; display:flex; gap:8px; align-items:center; }
+
+        button, .link-like { background: var(--color-charcoal); color: #fff; border: none; padding:8px 10px; cursor:pointer; font-family:inherit; }
+        button.secondary { background: transparent; color: var(--color-charcoal); border: 1px solid var(--color-taupe); }
+        .small { padding:6px 8px; font-size: 9pt; }
+
+        /* Print styling - keep the invoice to a single page when possible */
+        @page { size: Letter; margin: 8mm; }
+        @media print {
+            html, body { height: auto; padding: 0; background: #fff; }
+            .invoice-container { box-shadow: none; margin:0; padding: 10mm; width: auto; max-width: none; font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            /* Reduce table padding for print */
+            .items-table th, .items-table td { padding: 6px 6px; }
+            .items-table { font-size: 9pt; }
+            .sender-info, .billing-info, .invoice-details, .notes-terms, .totals-box { font-size: 9pt; }
+            /* Prevent page-breaks inside key containers so content stays together */
+            .invoice-container, .header-section, .recipient-details, .summary-footer, .items-table, .totals-box, .notes-terms {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .items-table tr { page-break-inside: avoid; break-inside: avoid; }
+            .thank-you { page-break-inside: avoid; break-after: avoid; margin-top: 8px; }
+            /* Hide controls not needed in print */
+            .controls, input[type="file"], #paymentLinkInput { display:none !important; }
+        }
+
+        /* Responsive small screens */
+        @media (max-width:720px) {
+            .recipient-details { flex-direction: column; }
+            .billing-info, .invoice-details { width:100%; }
+            .summary-footer { flex-direction:column; }
+            .totals-box { width:100%; text-align:right; }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container" id="invoice">
+
+        <div class="header-section">
+            <div class="logo-block">
+                <div id="logoContainer">
+                    <!-- Embedded lightweight SVG logo (gold text) - offline-ready -->
+                    <svg class="logo-preview" viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vortez Media logo">
+                        <title>Vortez Media</title>
+                        <rect width="100%" height="100%" fill="transparent" />
+                        <text x="0" y="40" font-family="Georgia, 'Times New Roman', serif" font-size="20" fill="#CBA135" font-weight="700">VORTEZ MEDIA</text>
+                        <text x="0" y="95" font-family="Georgia, 'Times New Roman', serif" font-size="56" fill="#F6E6C5" opacity="0.55">V M V</text>
+                    </svg>
+                </div>
+                <div>
+                    <div class="logo-placeholder" id="logoText">VORTEZ MEDIA</div>
+                </div>
+            </div>
+
+            <div class="sender-info">
+                <h1 contenteditable id="companyName">Vortez Media</h1>
+                <div contenteditable id="senderAddress">[Your Full Address Line 1]<br>[Your Full Address Line 2]</div>
+                <div style="margin-top:6px; font-size:10pt;" contenteditable id="senderContact">[Phone Number] | [Email Address] | [Website]</div>
+            </div>
+        </div>
+
+        <div class="recipient-details">
+            <div class="billing-info">
+                <strong>BILL TO:</strong>
+                <div contenteditable id="clientName">[CLIENT NAME / COMPANY NAME]</div>
+                <div contenteditable id="clientAddress1">[Client Full Address Line 1]</div>
+                <div contenteditable id="clientAddress2">[Client Full Address Line 2]</div>
+                <div contenteditable id="clientContact">[Client Contact Name / Email]</div>
+            </div>
+            <div class="invoice-details">
+                <div><strong>INVOICE #:</strong> <span contenteditable id="invoiceNumber">0001</span></div>
+                <div><strong>DATE:</strong> <input type="date" id="invoiceDate"></div>
+                <div><strong>DUE DATE:</strong> <input type="date" id="dueDate"></div>
+                <div><strong>PROJECT / REF #:</strong> <span contenteditable id="projectRef">[If Applicable]</span></div>
+            </div>
+        </div>
+
+        <div class="items-actions">
+            <button id="addRow" class="small">+ Add Line</button>
+            <button id="clearRows" class="small secondary">Clear Lines</button>
+            <span style="margin-left:12px; font-size:9pt; color:var(--color-taupe);">Tip: click any text to edit inline.</span>
+        </div>
+
+        <table class="items-table" id="itemsTable" aria-label="Invoice line items">
+            <thead>
+                <tr>
+                    <th style="width:50%;">Item/Description</th>
+                    <th style="width:15%;">Qty/Hours</th>
+                    <th style="width:20%;" class="amount">Rate/Unit</th>
+                    <th style="width:15%;" class="amount">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+                <!-- JS will populate rows -->
+            </tbody>
+        </table>
+
+        <div class="summary-footer">
+            <div class="notes-terms">
+                <strong>Payment Terms:</strong>
+                <div contenteditable id="paymentTerms">Payment is due net thirty (30) days from the invoice date. Bank transfer details: [Enter details here].</div>
+                <div style="margin-top: 10px;">
+                    <strong>Online Payment Link:</strong>
+                    <input type="text" id="paymentLinkInput" placeholder="Paste Stripe or PayPal URL here" style="width: 100%; padding: 4px; border: 1px solid var(--color-taupe); font-size: 9pt;">
+                </div>
+                <div style="margin-top:8px; font-size:9pt; color:var(--color-taupe);">Note: This invoice template saves values locally in your browser for convenience.</div>
+            </div>
+
+            <div class="totals-box">
+                <table>
+                    <tbody>
+                        <tr><td>SUBTOTAL</td><td id="subtotal">$0.00</td></tr>
+                        <tr><td>DISCOUNT/CREDIT</td><td><input type="number" id="discount" value="0" min="0" step="0.01" style="text-align:right; width:100px;"> <span style="font-size:9pt; color:var(--color-taupe);">(negative reduces total)</span></td></tr>
+                        <tr><td>FEES</td><td><input id="feeAmount" type="number" value="0.00" min="0" step="0.01" style="text-align:right; width:100px;"></td></tr>
+                        <tr class="final-total">
+                            <td class="label">TOTAL DUE</td>
+                            <td class="value" id="totalDue">$0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Pay button relocated into the totals box for better print layout -->
+                <div style="margin-top: 20px; text-align: right;">
+                    <a href="#" id="payButton" target="_blank" style="
+                        background: var(--color-gold); 
+                        color: var(--color-charcoal);
+                        padding: 10px 15px;
+                        text-decoration: none;
+                        font-weight: bold;
+                        font-size: 12pt;
+                        display: inline-block;
+                        border-radius: 3px;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    ">
+                        PAY IN FULL (CARD / BANK)
+                    </a>
+                    <p id="paymentLinkWarning" style="color: red; font-size: 9pt; margin-top: 5px; display: none;">*Please enter a link above to activate this button.</p>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div class="thank-you">
+            *Thank you for your timely review and payment. We appreciate the opportunity to serve you.*
+        </div>
+
+        <div class="controls">
+            <button id="saveBtn" class="small">Save Locally</button>
+            <button id="resetBtn" class="small secondary">Reset Template</button>
+            <button id="printBtn" class="small">Print / Save as PDF</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Basic interactive invoice script
+        const currencySymbol = '$'; // user can change in README or via inline edit if desired
+
+        const itemsBody = document.getElementById('itemsBody');
+        const addRowBtn = document.getElementById('addRow');
+        const clearRowsBtn = document.getElementById('clearRows');
+        const subtotalEl = document.getElementById('subtotal');
+        const totalEl = document.getElementById('totalDue');
+        const feeInput = document.getElementById('feeAmount');
+        const discountInput = document.getElementById('discount');
+        const logoContainer = document.getElementById('logoContainer');
+        let logoData = null; // stores base64 data URI when user uploads a logo
+
+        // Payment link elements
+        const paymentLinkInput = document.getElementById('paymentLinkInput');
+        const payButton = document.getElementById('payButton');
+        const paymentLinkWarning = document.getElementById('paymentLinkWarning');
+
+        function formatMoney(v){
+            return currencySymbol + Number(v || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+        }
+
+        function createRow(item={desc:'Service description', qty:1, rate:0}){
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="desc" value="${escapeHTML(item.desc)}"></td>
+                <td><input type="number" class="qty" value="${item.qty}" min="0" step="0.1"></td>
+                <td class="amount"><input type="number" class="rate" value="${item.rate}" min="0" step="0.01"></td>
+                <td class="amount"><strong class="lineTotal">${formatMoney(item.qty*item.rate)}</strong> <button class="remove small secondary" style="margin-left:8px;">Remove</button></td>
+            `;
+            itemsBody.appendChild(tr);
+            attachRowListeners(tr);
+        }
+
+        function attachRowListeners(tr){
+            const qty = tr.querySelector('.qty');
+            const rate = tr.querySelector('.rate');
+            const desc = tr.querySelector('.desc');
+            const remove = tr.querySelector('.remove');
+            const lineTotal = tr.querySelector('.lineTotal');
+
+            function update(){
+                const q = parseFloat(qty.value) || 0;
+                const r = parseFloat(rate.value) || 0;
+                lineTotal.textContent = formatMoney(q*r);
+                recalc();
+            }
+
+            qty.addEventListener('input', update);
+            rate.addEventListener('input', update);
+            desc.addEventListener('input', saveLocal);
+            remove.addEventListener('click', ()=>{ tr.remove(); recalc(); saveLocal(); });
+        }
+
+        function recalc(){
+            let subtotal = 0;
+            document.querySelectorAll('#itemsBody tr').forEach(tr=>{
+                const q = parseFloat((tr.querySelector('.qty')||{}).value) || 0;
+                const r = parseFloat((tr.querySelector('.rate')||{}).value) || 0;
+                subtotal += q*r;
+            });
+            // --- Calculation of Final Total ---
+            subtotalEl.textContent = formatMoney(subtotal);
+            const discount = parseFloat(discountInput.value) || 0;
+            const fee = parseFloat(feeInput.value) || 0;
+            const taxable = Math.max(subtotal - discount, 0);
+            const total = taxable + fee;
+            totalEl.textContent = formatMoney(total);
+
+            // --- START: Dynamic Stripe Link Generation (optional) ---
+            // Configure this to your static Stripe payment link base (example: "https://buy.stripe.com/xyz").
+            // If left empty, the template will continue to use the manual `Online Payment Link` input.
+            const BASE_STRIPE_URL = "https://your-app-name.onrender.com/pay-invoice"; // <-- REPLACE with your actual Render URL
+
+            try {
+                const payButtonEl = document.getElementById('payButton');
+                if (BASE_STRIPE_URL && BASE_STRIPE_URL.trim().length > 0) {
+                    const finalTotal = total; // dollars
+                    const finalTotalInCents = Math.round(finalTotal * 100); // Stripe expects cents
+                    const invoiceNumber = document.getElementById('invoiceNumber').innerText || '';
+                    const dynamicLink = `${BASE_STRIPE_URL}?amount=${finalTotalInCents}&invoice_ref=${encodeURIComponent(invoiceNumber)}`;
+                    payButtonEl.href = dynamicLink;
+                    payButtonEl.style.opacity = 1;
+                    if (paymentLinkWarning) paymentLinkWarning.style.display = 'none';
+                } else {
+                    // No BASE_STRIPE_URL configured — fall back to manual paymentLinkInput behavior
+                    if (paymentLinkInput && paymentLinkInput.value && paymentLinkInput.value.trim().length > 0) {
+                        // ensure the manual link is validated/normalized
+                        updatePaymentLink();
+                    } else {
+                        if (payButtonEl) { payButtonEl.href = '#'; payButtonEl.style.opacity = 0.5; }
+                        if (paymentLinkWarning) paymentLinkWarning.style.display = 'block';
+                    }
+                }
+            } catch (e) {
+                console.warn('Dynamic link generation error', e);
+            }
+            // --- END: Dynamic Stripe Link Generation ---
+
+            saveLocal();
+        }
+
+        function saveLocal(){
+            const state = {
+                companyName: document.getElementById('companyName').innerText,
+                senderAddress: document.getElementById('senderAddress').innerHTML,
+                senderContact: document.getElementById('senderContact').innerText,
+                clientName: document.getElementById('clientName').innerText,
+                clientAddress1: document.getElementById('clientAddress1').innerText,
+                clientAddress2: document.getElementById('clientAddress2').innerText,
+                clientContact: document.getElementById('clientContact').innerText,
+                invoiceNumber: document.getElementById('invoiceNumber').innerText,
+                invoiceDate: document.getElementById('invoiceDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                projectRef: document.getElementById('projectRef').innerText,
+                paymentTerms: document.getElementById('paymentTerms').innerText,
+                feeAmount: (feeInput && feeInput.value) ? feeInput.value : 0,
+                discount: discountInput.value,
+                paymentLink: (paymentLinkInput && paymentLinkInput.value) ? paymentLinkInput.value : '',
+                items: Array.from(document.querySelectorAll('#itemsBody tr')).map(tr=>({
+                    desc: (tr.querySelector('.desc')||{}).value || '',
+                    qty: (tr.querySelector('.qty')||{}).value || 0,
+                    rate: (tr.querySelector('.rate')||{}).value || 0
+                }))
+            };
+            if(logoData) state.logoData = logoData;
+            try{ localStorage.setItem('invoiceTemplateState', JSON.stringify(state)); }
+            catch(e){ console.warn('Could not save to localStorage', e); }
+        }
+
+        function loadLocal(){
+            try{
+                const raw = localStorage.getItem('invoiceTemplateState');
+                if(!raw) return false;
+                const state = JSON.parse(raw);
+                document.getElementById('companyName').innerText = state.companyName || '';
+                document.getElementById('senderAddress').innerHTML = state.senderAddress || '';
+                document.getElementById('senderContact').innerText = state.senderContact || '';
+                document.getElementById('clientName').innerText = state.clientName || '';
+                document.getElementById('clientAddress1').innerText = state.clientAddress1 || '';
+                document.getElementById('clientAddress2').innerText = state.clientAddress2 || '';
+                document.getElementById('clientContact').innerText = state.clientContact || '';
+                document.getElementById('invoiceNumber').innerText = state.invoiceNumber || '';
+                document.getElementById('invoiceDate').value = state.invoiceDate || '';
+                document.getElementById('dueDate').value = state.dueDate || '';
+                document.getElementById('projectRef').innerText = state.projectRef || '';
+                document.getElementById('paymentTerms').innerText = state.paymentTerms || '';
+                if(feeInput) feeInput.value = state.feeAmount || 0;
+                discountInput.value = state.discount || 0;
+                itemsBody.innerHTML = '';
+                // restore uploaded/embedded logo if present
+                if(state.logoData){
+                    logoData = state.logoData;
+                    logoContainer.innerHTML = `<img src="${state.logoData}" class="logo-preview" alt="Logo">`;
+                }
+                // restore payment link if present
+                if(state.paymentLink && paymentLinkInput){
+                    paymentLinkInput.value = state.paymentLink;
+                }
+                (state.items || []).forEach(it => createRow({desc: it.desc, qty: it.qty, rate: it.rate}));
+                recalc();
+                return true;
+            } catch(e){ console.warn('loadLocal error', e); return false; }
+        }
+
+        function resetTemplate(){
+            if(!confirm('Reset template and clear saved data?')) return;
+            localStorage.removeItem('invoiceTemplateState');
+            location.reload();
+        }
+
+        // Helpers
+        function escapeHTML(s){ return (s+'').replace(/[&<>\"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[c]); }
+
+        // Wire up buttons
+        addRowBtn.addEventListener('click', ()=>{ createRow(); saveLocal(); });
+        clearRowsBtn.addEventListener('click', ()=>{ if(confirm('Remove all rows?')){ itemsBody.innerHTML=''; recalc(); saveLocal(); }});
+        discountInput.addEventListener('input', recalc);
+        if(feeInput) feeInput.addEventListener('input', recalc);
+
+        document.getElementById('saveBtn').addEventListener('click', ()=>{ saveLocal(); alert('Saved to browser localStorage.'); });
+        document.getElementById('resetBtn').addEventListener('click', resetTemplate);
+        document.getElementById('printBtn').addEventListener('click', ()=>{ window.print(); });
+
+        // update payment link button behaviour with URL validation
+        function isValidUrl(value){
+            if(!value) return false;
+            try{
+                new URL(value);
+                return true;
+            }catch(e){
+                // try with https:// prefix (allow users to paste without protocol)
+                try{ new URL('https://'+value); return true; } catch(e2){ return false; }
+            }
+        }
+
+        function normalizeUrl(value){
+            if(/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(value)) return value; // has scheme
+            return 'https://'+value;
+        }
+
+        function updatePaymentLink() {
+            if(!paymentLinkInput || !payButton || !paymentLinkWarning) return;
+            const raw = paymentLinkInput.value.trim();
+            if (!raw) {
+                payButton.href = '#';
+                payButton.style.opacity = 0.5; // visually indicate disabled
+                paymentLinkWarning.textContent = '*Please enter a link above to activate this button.';
+                paymentLinkWarning.style.display = 'block';
+                paymentLinkInput.classList.remove('valid');
+                paymentLinkInput.classList.remove('invalid');
+            } else if (!isValidUrl(raw)) {
+                payButton.href = '#';
+                payButton.style.opacity = 0.5;
+                paymentLinkWarning.textContent = '*Please enter a valid URL (include domain, e.g. https://pay.example.com).';
+                paymentLinkWarning.style.display = 'block';
+                paymentLinkInput.classList.remove('valid');
+                paymentLinkInput.classList.add('invalid');
+            } else {
+                const href = normalizeUrl(raw);
+                payButton.href = href;
+                payButton.style.opacity = 1;
+                paymentLinkWarning.style.display = 'none';
+                paymentLinkInput.classList.remove('invalid');
+                paymentLinkInput.classList.add('valid');
+            }
+            saveLocal();
+        }
+
+        if(paymentLinkInput){
+            paymentLinkInput.addEventListener('input', updatePaymentLink);
+        }
+
+        // logo upload control removed — logoData can still be restored from saved state if present
+
+        // Save on blur of contenteditable fields
+        document.querySelectorAll('[contenteditable]').forEach(el=> el.addEventListener('blur', saveLocal));
+
+        // Initial rows & load
+        (function init(){
+            const loaded = loadLocal();
+            if(!loaded){
+                createRow({desc:'Consulting — strategy & planning', qty:10, rate:150});
+                createRow({desc:'Video production — shoot day (incl. crew)', qty:1, rate:2500});
+                createRow({desc:'Post-production / editing', qty:15, rate:120});
+                recalc();
+            }
+            // After load (or initial populate) ensure payment button reflects current input
+            try{ if(typeof updatePaymentLink === 'function') updatePaymentLink(); } catch(e){ /* ignore */ }
+        })();
+
+    </script>
+</body>
+</html>
